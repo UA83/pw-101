@@ -1,46 +1,78 @@
-name: Playwright Tests
+name: Python Playwright CI
 
-# Run this workflow whenever code is pushed to the 'main' branch
-# or when a Pull Request is opened against 'main'.
+# -----------------------------------------------------------
+# 1. Triggers: When should this workflow run?
+# -----------------------------------------------------------
 on:
+  # Run on every push to the main branch
   push:
     branches: [main]
+
+  # Run when a Pull Request is opened or updated targeting main
   pull_request:
     branches: [main]
 
+  # Run the full suite every night at 02:00 AM UTC
+  schedule:
+    # Cron: '0 2 * * *' = 0 minutes past 2 AM, every day
+    - cron: "0 2 * * *"
+
+# Allows manual re-running of the workflow from the GitHub UI
+workflow_dispatch:
+
+# -----------------------------------------------------------
+# 2. Job Definition: What tasks to run?
+# -----------------------------------------------------------
 jobs:
   test:
     # Use a standard Linux runner environment
     runs-on: ubuntu-latest
 
-    steps:
-      # 1. Checkout the code from the repository
-      - uses: actions/checkout@v4
+    # Define environment variables used by the job
+    env:
+      # Sets the Playwright browser to be visible only on the nightly schedule run
+      # This is helpful for debugging if a nightly run fails
+      PLAYWRIGHT_HEADLESS: ${{ github.event_name != 'schedule' }}
 
-      # 2. Set up Python environment
+    steps:
+      # 2.1 Checkout the code from the repository
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # 2.2 Set up Python environment
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          # Use the same Python version you use locally
+          # Use the Python version you use locally (e.g., '3.12')
           python-version: "3.12"
 
-      # 3. Install Python dependencies (from requirements.txt)
+      # 2.3 Install Python dependencies (from requirements.txt)
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      # 4. Install Playwright browser dependencies
-      # This installs Chromium, Firefox, and WebKit on the runner
+      # 2.4 Install Playwright browser dependencies
+      # This installs Chromium, Firefox, and WebKit
       - name: Install Playwright browsers
         run: playwright install --with-deps
 
-      # 5. Run the Pytest Playwright tests
-      - name: Run Playwright tests
-        run: pytest tests/
+      # 2.5 Run the Pytest Playwright tests
+      - name: Run Tests
+        # If triggered by schedule, run the full regression and slow tests.
+        # Otherwise (on push/PR), run the faster smoke tests for quick feedback.
+        run: |
+          if [[ "${{ github.event_name }}" == "schedule" ]]; then
+            echo "Running FULL REGRESSION SUITE (Scheduled)"
+            pytest tests/ -m "regression or slow" --headed
+          else
+            echo "Running SMOKE TESTS (Push/PR)"
+            pytest tests/ -m smoke
+          fi
 
-      # 6. Optional: Upload test results artifact (for analysis)
+      # 2.6 Upload the generated test report as an artifact
       - uses: actions/upload-artifact@v4
+        # Upload report only if tests were actually run (i.e., not a skipped job)
         if: always()
         with:
           name: playwright-report
