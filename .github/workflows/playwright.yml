@@ -49,12 +49,12 @@ jobs:
 
       # NOTE: The separate "Install Playwright browsers" step is now merged above.
 
-      # 2.5 Run the Pytest Playwright tests (NOW RUNS ALL TESTS)
-      - name: Run ALL Tests
-        # Runs pytest with no marker filtering.
+      # 2.5 Run the Pytest Playwright tests (NOW GENERATES HTML REPORT)
+      - name: Run ALL Tests and Generate Report
         run: |
           echo "Running ALL Collected Tests..."
-          pytest tests/
+          # Add flags to generate the HTML report and save it to the specified path
+          pytest tests/ --html=playwright-report/index.html --self-contained-html
 
       # 2.6 Upload the generated test report as an artifact
       - uses: actions/upload-artifact@v4
