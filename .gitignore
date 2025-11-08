@@ -1,0 +1,42 @@
+# ------------------------------------
+# 1. Python Virtual Environment (VENV)
+# ------------------------------------
+.venv/
+venv/
+env/
+.env
+
+# ------------------------------------
+# 2. Bytecode and Cache Files
+# ------------------------------------
+# Compiled Python files (automatically created)
+__pycache__/
+*.pyc
+
+# Distributing/packaging files
+*.egg-info/
+build/
+dist/
+
+# ------------------------------------
+# 3. Playwright & Pytest Outputs
+# ------------------------------------
+# Folder created by Playwright to store browser logs, videos, etc.
+test-results/
+
+# Playwright generated assets (e.g., screenshots, traces)
+# NOTE: If you save test evidence, you might only want to ignore traces/videos
+playwright-report/
+
+# Pytest cache directory
+.pytest_cache/
+
+# ------------------------------------
+# 4. IDE and Editor Files (VS Code)
+# ------------------------------------
+# VS Code settings and temporary files
+.vscode/
+
+# History and backup files (often temporary)
+*~
+*.bak
