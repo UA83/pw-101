@@ -1,0 +1,48 @@
+name: Playwright Tests
+
+# Run this workflow whenever code is pushed to the 'main' branch
+# or when a Pull Request is opened against 'main'.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    # Use a standard Linux runner environment
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout the code from the repository
+      - uses: actions/checkout@v4
+
+      # 2. Set up Python environment
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          # Use the same Python version you use locally
+          python-version: "3.12"
+
+      # 3. Install Python dependencies (from requirements.txt)
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # 4. Install Playwright browser dependencies
+      # This installs Chromium, Firefox, and WebKit on the runner
+      - name: Install Playwright browsers
+        run: playwright install --with-deps
+
+      # 5. Run the Pytest Playwright tests
+      - name: Run Playwright tests
+        run: pytest tests/
+
+      # 6. Optional: Upload test results artifact (for analysis)
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30
