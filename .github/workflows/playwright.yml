@@ -17,8 +17,8 @@ on:
     # Cron: '0 2 * * *' = 0 minutes past 2 AM, every day
     - cron: "0 2 * * *"
 
-# Allows manual re-running of the workflow from the GitHub UI
-workflow_dispatch:
+  # Allows manual re-running of the workflow from the GitHub UI
+  workflow_dispatch:
 
 # -----------------------------------------------------------
 # 2. Job Definition: What tasks to run?
