@@ -6,6 +6,7 @@ def test_user_can_login(page):
     page.locator("#password").fill("secret_sauce")
     page.locator("#login-button").click()
     #Test
+    # Another Line
     
     # Assert successful login 
     assert page.url == "https://www.saucedemo.com/inventory.html"
